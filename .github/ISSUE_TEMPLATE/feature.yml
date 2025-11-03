@@ -1,0 +1,30 @@
+name: "✨ FEATURE"
+description: "기능 개발 이슈 템플릿입니다"
+title: "[FEATURE] "
+labels: ["feature"]
+
+body:
+  - type: textarea
+    attributes:
+      label: 📌 개요 
+      description: 어떤 기능인지, 왜 구현하는지 간단히 작성해주세요.
+      placeholder: |
+        예: 회원가입 API 구현 - 사용자 정보를 DB에 저장하고 로그인 기반 마련
+
+
+  - type: textarea
+    attributes:
+      label: 🧩 구현 방식 
+      description: 어떻게 구현할 예정인지 간단히 적어주세요.
+      placeholder: |
+        예: Controller → Service → Repository 구조로 구현  
+        예: bcrypt로 비밀번호 해싱 후 저장
+
+  - type: checkboxes
+    attributes:
+      label: ✅ TODO
+      options:
+        - label: Controller 구현
+        - label: Service 로직 작성
+        - label: Repository/DB 연동
+        - label: 테스트 코드 작성 or Postman 테스트
