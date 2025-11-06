@@ -12,11 +12,36 @@ export const bodyToMission = (body, storeId) => {
   export const responseFromMission = (mission) => {
     return {
       id: mission.id,
-      storeId: mission.store_id,
+      storeId: mission.storeId,
       title: mission.title,
       description: mission.description,
       reward: mission.reward,
-      createdAt: mission.created_at,
+      createdAt: mission.createdAt,
     };
   };
   
+
+  // 가게의 미션 목록 
+  export const missionToResponse = (mission) => {
+    return {
+      id: mission.id,
+      reward: mission.reward,
+      content: mission.content,
+      storeId: mission.storeId,
+      createdAt: mission.createdAt,
+      updatedAt: mission.updatedAt,
+    };
+  };
+  
+  // 미션 응답 DTO - 클라이언트에게 전달할 형식으로 변환
+export const responseFromUserMission = (userMission) => {
+  return {
+    missionId: userMission.mission.id,
+    title: userMission.mission.title,
+    description: userMission.mission.description,
+    storeName: userMission.mission.store.name,
+    status: userMission.status,
+    createdAt: userMission.createdAt,
+    updatedAt: userMission.updatedAt,
+  };
+};

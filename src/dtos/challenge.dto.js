@@ -9,9 +9,9 @@ export const paramsToChallenge = (userId, missionId) => {
   // 응답 포맷으로 변환
   export const responseFromChallenge = (row) => {
     return {
-      userId: row.user_id,
-      missionId: row.mission_id,
-      challengedAt: row.created_at,
+      userId: row.userId,
+      missionId: row.missionId,
+      challengedAt: row.createdAt,
     };
   };
   

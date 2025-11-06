@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  email         String   @unique(map: "email") @db.VarChar(255)
+  name          String   @db.VarChar(100)
+  gender        String   @db.VarChar(15)
+  birth         DateTime @db.Date
+  address       String   @db.VarChar(255)
+  detailAddress String?  @map("detail_address") @db.VarChar(255)
+  phoneNumber   String   @map("phone_number") @db.VarChar(15)
+
+  userFavorCategories UserFavorCategory[]
+  userMissions UserMission[]
+
+  @@map("user")
+}
+
+model FoodCategory {
+  id   Int    @id @default(autoincrement())
+  name String @db.VarChar(100)
+
+  userFavorCategories UserFavorCategory[]
+
+  @@map("food_category")
+}
+
+model UserFavorCategory {
+  id             Int          @id @default(autoincrement())
+  user           User         @relation(fields: [userId], references: [id])
+  userId         Int          @map("user_id")
+  foodCategory   FoodCategory @relation(fields: [foodCategoryId], references: [id])
+  foodCategoryId Int          @map("food_category_id")
+
+  @@index([foodCategoryId], map: "f_category_id")
+  @@index([userId], map: "user_id")
+  @@map("user_favor_category")
+}
+
+model UserMission {
+  userId    Int
+  missionId Int
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  mission Mission @relation(fields: [missionId], references: [id])
+
+  @@id([userId, missionId]) // 복합 PK
+  @@map("user_mission")     // 실제 DB 테이블명
+}
+
+model Mission {
+  id        Int      @id @default(autoincrement())
+  storeId   Int
+  content   String
+  reward    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  store     Store    @relation(fields: [storeId], references: [id])
+}
+
+model Review {
+  id          Int      @id @default(autoincrement())
+  content     String
+  rating      Float
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
+  store       Store    @relation(fields: [storeId], references: [id])
+  storeId     Int
+  images      ReviewImage[]
+  ownerComment OwnerComment?
+}
+
+model ReviewImage {
+  id        Int    @id @default(autoincrement())
+  imageUrl  String
+  review    Review @relation(fields: [reviewId], references: [id])
+  reviewId  Int
+}
+
+model OwnerComment {
+  id        Int     @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  review    Review  @relation(fields: [reviewId], references: [id])
+  reviewId  Int     @unique
+}

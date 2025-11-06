@@ -1,36 +1,49 @@
-import { pool } from "../db.config.js";
+import { prisma } from "../db.config.js";
 
 // 해당 storeId가 실제로 존재하는지 확인
 export const findStoreById = async (storeId) => {
-  const conn = await pool.getConnection();
-  try {
-    const [rows] = await conn.query("SELECT * FROM stores WHERE id = ?;", [storeId]);
-    return rows[0]; // undefined or store
-  } finally {
-    conn.release();
-  }
+  const store = await prisma.store.findUnique({
+    where: {
+      id: storeId,
+    },
+  });
+
+  return store; 
 };
 
 // 리뷰를 DB에 저장
 export const insertReview = async (reviewDto) => {
-  const conn = await pool.getConnection();
-  try {
-    const { storeId, userId, rating, content } = reviewDto;
+  const { storeId, userId, rating, content } = reviewDto;
 
-    const [result] = await conn.query(
-      `INSERT INTO reviews (store_id, user_id, rating, content)
-       VALUES (?, ?, ?, ?)`,
-      [storeId, userId, rating, content]
-    );
+  const createdReview = await prisma.userStoreReview.create({
+    data: {
+      storeId,
+      userId,
+      rating,
+      content,
+    },
+    include: {
+      store: true, 
+      user: true,  
+    },
+  });
 
-    // 방금 저장한 리뷰 다시 조회해서 응답에 사용
-    const [saved] = await conn.query(
-      `SELECT * FROM reviews WHERE id = ?`,
-      [result.insertId]
-    );
-
-    return saved[0];
-  } finally {
-    conn.release();
-  }
+  return createdReview;
 };
+
+// 내가 작성한 리뷰 목록 불러오기 
+export const getReviewsByUserId = async(userId) => {
+  return await prisma.review.findMany({
+    where: {
+      userId: userId,
+    },
+    include: {
+      store: true,
+      images: true,
+      ownerComment: true,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  })
+}

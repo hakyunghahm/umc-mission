@@ -21,3 +21,10 @@ export const createStore = async (data) => {
     // 4. 저장 결과를 응답 형태로 포맷
     return responseFromStore(newStore);
   };
+
+
+  export const listStoreReviews = async (storeId, cursor) => {
+    const reviews = await getAllStoreReviews(storeId, cursor); // 호출해 DB에서 리뷰 배열 가져옴
+    return responseFromReviews(reviews); // 가져온 리뷰 데이터 보기 좋은 구조로 변환, DTO로 넘김
+  };
+  

@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import { createReview } from "../services/review.service.js";
+import { createReview, getMyReviews } from "../services/review.service.js";
 import { bodyToReview } from "../dtos/review.dto.js";
 
 // 리뷰 생성 요청 처리
@@ -21,3 +21,20 @@ export const handleCreateReview = async (req, res, next) => {
       .json({ message: err.message || "리뷰 등록 중 오류가 발생했습니다." });
   }
 };
+
+// 작성한 리뷰 불러오기 요청 처리 
+export const handleGetMyReviews = async(req, res) => {
+  const userId = req.user.id;
+  try {
+    const reviews = await getMyReviews(userId);
+    res.status(StatusCodes.OK).json({
+      message: "내가 작성한 리뷰 목록 조회 성공",
+      data: reviews,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: "리뷰 조회 중 오류가 발생했습니다",
+    });
+  }
+}

@@ -1,38 +1,54 @@
-// repositories/store.repository.js
-import { pool } from "../db.config.js";
+import { prisma } from "../db.config.js";
 
 // name + address 조합으로 기존에 존재하는 가게가 있는지 확인
 export const findStoreByNameAndAddress = async (name, address) => {
-  const conn = await pool.getConnection(); // 커넥션 하나 꺼내옴
-  try {
-    const [rows] = await conn.query(
-      "SELECT * FROM stores WHERE name = ? AND address = ?;",
-      [name, address] // ?에 값 바인딩
-    );
-    return rows[0]; // 결과 배열의 첫 번째 요소 리턴 (없으면 undefined)
-  } finally {
-    conn.release(); // 커넥션 반납
-  }
+  // stores 테이블에서 일치하는 데이터 1개 조회
+  const store = await prisma.store.findFirst({
+    where: {
+      name: name,
+      address: address,
+    }
+  });
+
+  return store; 
 };
 
-// 실제로 store를 INSERT 하는 쿼리 실행
+// 가게 등록 함수 
 export const insertStore = async (storeData) => {
-  const conn = await pool.getConnection();
-  try {
-    const { name, address, latitude, longitude, category } = storeData;
+  const {name, address, latitude, longitude, category } = storeData; // 구조분해 
 
-    const [result] = await conn.query(
-      `INSERT INTO stores (name, address, latitude, longitude, category)
-       VALUES (?, ?, ?, ?, ?)`,
-      [name, address, latitude, longitude, category]
-    );
-
-    // insertId: DB가 자동 생성한 primary key 반환
-    return {
-      id: result.insertId,
-      ...storeData, // 입력한 정보 그대로 담아 반환
-    };
-  } finally {
-    conn.release();
-  }
+  // Prisma의 create 메서드로 INSERT 수행
+  const createdStore = await prisma.store.create({
+    data: {
+      name: name,
+      address: address,
+      latitude: latitude,
+      longitude: longitude,
+      category: category,
+    },
+  });
+  return createdStore; 
 };
+
+// 가게의 리뷰 목록 
+export const getAllStoreReviews = async (storeId, cursor) => {
+  const reviews = await prisma.userStoreReview.findMany({ // 테이블에서 데이터 조회 시작 
+    select: { // 가져올 컬럼들만 지정 
+      id: true,
+      content: true,
+      store: true,
+      user: true,
+    },
+    where: {
+      storeId: storeId,
+      id: { gt: cursor }, // 이전 페이지에서 받은 마지막 리뷰 id보다 큰 것만 가져옴
+    },
+    orderBy: {
+      id: "asc",
+    },
+    take: 5, // 최대 5개만 가져옴
+  });
+
+  return reviews;
+};
+

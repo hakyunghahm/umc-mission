@@ -3,11 +3,10 @@ import dotenv from "dotenv";
 import express from "express";
 import { handleUserSignUp } from "./controllers/user.controller.js";
 import { handleStoreCreate } from './controllers/store.controller.js';
-import { handleCreateReview } from "./controllers/review.controller.js";
-import { handleCreateMission} from "./controllers/mission.controller.js";
+import { handleCreateReview, handleGetMyReviews } from "./controllers/review.controller.js";
+import { handleCreateMission, handleGetMyMissions} from "./controllers/mission.controller.js";
 import { handleChallengeMission } from "./controllers/challenge.controller.js";
-
-
+import { handleListStoreReviews, handleListStoreMissions } from "./controllers/store.controller.js"
 dotenv.config(); // 환경변수 불러와서 저장 
 
 const app = express(); // 서버 인스턴스 생성 
@@ -27,6 +26,10 @@ app.post("/api/v1/stores", handleStoreCreate);
 app.post("/api/v1/stores/:storeId/reviews", handleCreateReview);
 app.post("/api/v1/stores/:storeId/missions", handleCreateMission);
 app.post("/api/v1/users/:userId/missions/:missionId/challenge", handleChallengeMission);
+app.get("/api/v1/stores/:storeId/reviews", handleListStoreReviews);
+app.get("/api/v1/reviews/my", handleGetMyReviews);
+app.get("/api/v1/stores/:storeId/missions", handleListStoreMissions);
+app.get("/api/v1/users/:userId/missions", handleGetMyMissions);
 
 
 app.listen(port, () => {

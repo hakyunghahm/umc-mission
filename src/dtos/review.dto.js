@@ -8,15 +8,26 @@ export const bodyToReview = (body, storeId) => {
     };
   };
   
-  // DB에서 insert된 결과를 응답 포맷으로 변환
-  export const responseFromReview = (review) => {
+// DB에서 insert된 결과를 응답 포맷으로 변환
+export const responseFromReview = (review) => {
     return {
       id: review.id,
-      storeId: review.store_id,
-      userId: review.user_id,
+      storeId: review.storeId,
+      userId: review.userId,
       rating: review.rating,
       content: review.content,
-      createdAt: review.created_at,
+      createdAt: review.createdAt,
     };
-  };
+};
   
+// 리뷰 목록을 클라이언트 응답 형식으로 변환
+export const responseFromReviewList = (reviewEntities) =>
+  reviewEntities.map((review) => ({
+    id: review.id,
+    content: review.content,
+    rating: review.rating,
+    createdAt: review.createdAt,
+    storeName: review.store.name,
+    imageUrls: review.images.map((img) => img.imageUrl),
+    ownerComment: review.ownerComment?.content || null,
+}));
