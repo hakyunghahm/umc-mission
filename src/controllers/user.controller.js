@@ -1,11 +1,14 @@
-import { StatusCodes } from "http-status-codes"; // 상태코드 라이브러리 
-import { bodyToUser } from "../dtos/user.dto.js"; // 데이터를 다루기 편한 구조로 바꿔주는 함수 
-import { userSignUp } from "../services/user.service.js"; // 핵심 로직은 service가 처리함 
+import { bodyToUser } from "../dtos/user.dto.js";
+import { userSignUp } from "../services/user.service.js";
 
 export const handleUserSignUp = async (req, res, next) => {
+  try {
     console.log("회원가입을 요청했습니다!");
-    console.log("body:", req.body); // 값이 잘 들어오나 확인하기 위한 테스트용
-  
-    const user = await userSignUp(bodyToUser(req.body)); // DTO 형태로 데이터 변환해 함수에 넘김 
-    res.status(StatusCodes.OK).json({ result: user });
-}
+    console.log("body:", req.body);
+
+    const user = await userSignUp(bodyToUser(req.body)); 
+    res.success({ user }); // 표준 응답 포맷 사용
+  } catch (err) {
+    next(err); // 전역 에러 핸들러로 전달
+  }
+};

@@ -1,40 +1,33 @@
-import { StatusCodes } from "http-status-codes";
 import { createReview, getMyReviews } from "../services/review.service.js";
 import { bodyToReview } from "../dtos/review.dto.js";
 
-// 리뷰 생성 요청 처리
+// 리뷰 등록
 export const handleCreateReview = async (req, res, next) => {
-  console.log("리뷰 등록 요청 도착!");
-  console.log("params:", req.params); // storeId
-  console.log("body:", req.body);     // userId, rating, content
-
   try {
+    console.log("리뷰 등록 요청 도착!");
+    console.log("params:", req.params);
+    console.log("body:", req.body);
+
     const storeId = req.params.storeId;
     const reviewDto = bodyToReview(req.body, storeId);
 
-    const result = await createReview(reviewDto);
+    const review = await createReview(reviewDto);
 
-    return res.status(StatusCodes.CREATED).json({ result });
+    res.success({ review }); 
   } catch (err) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: err.message || "리뷰 등록 중 오류가 발생했습니다." });
+    next(err); 
   }
 };
 
-// 작성한 리뷰 불러오기 요청 처리 
-export const handleGetMyReviews = async(req, res) => {
-  const userId = req.user.id;
+// 내가 작성한 리뷰 조회
+export const handleGetMyReviews = async (req, res, next) => {
   try {
+    const userId = req.user.id;
+
     const reviews = await getMyReviews(userId);
-    res.status(StatusCodes.OK).json({
-      message: "내가 작성한 리뷰 목록 조회 성공",
-      data: reviews,
-    });
+
+    res.success({ reviews });
   } catch (err) {
-    console.error(err);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: "리뷰 조회 중 오류가 발생했습니다",
-    });
+    next(err); 
   }
-}
+};
