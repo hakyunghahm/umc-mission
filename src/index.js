@@ -3,8 +3,9 @@ import cors from "cors";
 import dotenv from "dotenv";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
-
 import { CustomError } from "./utils/errors/customError.js";
+import swaggerUi from 'swagger-ui-express';
+import swaggerJsdoc from 'swagger-jsdoc';
 
 // Controller
 import { handleUserSignUp } from "./controllers/user.controller.js";
@@ -13,6 +14,27 @@ import { handleCreateReview, handleGetMyReviews } from "./controllers/review.con
 import { handleCreateMission, handleGetMyMissions } from "./controllers/mission.controller.js";
 import { handleChallengeMission } from "./controllers/challenge.controller.js";
 
+// swagger 옵션 정의 
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'UMC Mission API',
+      version: '1.0.0',
+      description: 'UMC API 명세서입니다.',
+    },
+    servers: [
+      {
+        url: 'http://localhost:3000',
+        description: '개발 서버',
+      },
+    ],
+  },
+  apis: ['./src/controllers/*.js'],
+};
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+
 // 환경 변수 설정
 dotenv.config();
 
@@ -20,11 +42,13 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT;
 
+
 // 기본 미들웨어
 app.use(cors());
 app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // 로깅 및 쿠키 파서
 app.use(morgan("dev"));
